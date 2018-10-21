@@ -1,6 +1,8 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import imageio
+imageio.plugins.ffmpeg.download()
 import requests
 import random
 import json
