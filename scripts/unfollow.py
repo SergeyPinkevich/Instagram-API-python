@@ -5,35 +5,38 @@
 
 from InstagramAPI import InstagramAPI
 
-api = InstagramAPI("89179065733", "Dscjwrbq")
+api = InstagramAPI("shapran.irina", "585925")
 usersToUnfollow = []
 
 
-def getAllUnfollowedUsers():
+def get_all_unfollowed_users():
     followings = api.getTotalFollowings(api.username_id)
+    i = 1
     for following in followings:
-        isFollowYou = False
+        print(str(i) + " of " + str(len(followings)) + " username: " + following['username'])
+        is_follow_you = False
         for f in api.getTotalFollowings(following['pk']):
             if f['pk'] == api.username_id:
-                isFollowYou = True
+                is_follow_you = True
                 break
-        if not isFollowYou:
+        if not is_follow_you:
             usersToUnfollow.append(following)
+        i += 1
     print("Number of non-following users: " + str(len(usersToUnfollow)))
 
 
-def unfollowUsers(max_users=100):
+def unfollow_users(max_users=100):
     i = 1
     for user in usersToUnfollow[:max_users]:
         print(str(i) + " of " + str(len(usersToUnfollow)) + " username: " + user['username'])
-        api.unfollow(usersToUnfollow[i - 1]['pk'])
+        # api.unfollow(usersToUnfollow[i - 1]['pk'])
         i += 1
 
 
 def login():
     if api.login():
-        getAllUnfollowedUsers()
-        unfollowUsers()
+        get_all_unfollowed_users()
+        # unfollowUsers()
     else:
         print("Can't login!")
 

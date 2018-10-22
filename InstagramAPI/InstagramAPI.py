@@ -4,7 +4,6 @@
 import imageio
 imageio.plugins.ffmpeg.download()
 import requests
-import random
 import json
 import hashlib
 import hmac
@@ -962,10 +961,14 @@ class InstagramAPI:
 
         while True:
             try:
-                if (post is not None):
+                if post is not None:
                     response = self.s.post(self.API_URL + endpoint, data=post, verify=verify)
+                    if response.status_code == 400:
+                        time.sleep(60)
                 else:
                     response = self.s.get(self.API_URL + endpoint, verify=verify)
+                    if response.status_code == 400:
+                        time.sleep(60)
                 break
             except Exception as e:
                 print('Except on SendRequest (wait 60 sec and resend): ' + str(e))
@@ -973,7 +976,10 @@ class InstagramAPI:
 
         if response.status_code == 200:
             self.LastResponse = response
-            self.LastJson = json.loads(response.text)
+            try:
+                self.LastJson = json.loads(response.text)
+            except Exception as e:
+                print(e)
             return True
         else:
             print("Request return " + str(response.status_code) + " error!")
@@ -1011,12 +1017,16 @@ class InstagramAPI:
             self.getUserFollowings(usernameId, next_max_id)
             temp = self.LastJson
 
-            for item in temp["users"]:
-                followers.append(item)
+            if "users" in temp.keys():
+                for item in temp["users"]:
+                    followers.append(item)
 
-            if temp["big_list"] is False:
-                return followers
-            next_max_id = temp["next_max_id"]
+            if "big_list" in temp.keys():
+                if temp["big_list"] is False:
+                    return followers
+
+            if "next_max_id" in temp.keys():
+                next_max_id = temp["next_max_id"]
 
     def getTotalUserFeed(self, usernameId, minTimestamp=None):
         user_feed = []
